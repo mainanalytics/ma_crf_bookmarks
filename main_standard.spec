@@ -11,7 +11,7 @@ datas = [
 
 
 a = Analysis(
-    ['src\ma_pytemp\main.py'],
+    ['src\ma_crf_bookmarks\main.py'],
     pathex=[],
     binaries=[],
     datas=datas,
@@ -30,7 +30,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='ma_pytemp v0.2.0',
+    name='ma_crf_bookmarks v0.1.0',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -51,5 +51,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='GBS PytTemp Simple v0.2.0',
+    name='GBS CRF Bookmarks v0.1.0',
 )
