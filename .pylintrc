@@ -1,0 +1,22 @@
+[MASTER]
+ignore=.venv,build,dist
+init-hook='import sys; sys.path.append("src")'
+
+[MESSAGES CONTROL]
+disable=
+    C,
+    R,
+    I,
+    W0718,  # except to broad-except
+    W0719,  # rause to broad-except
+    W0212,  # protected-access
+    E1101,  # no-member
+    E0611
+
+    # project specific accaptable
+
+[REPORTS]
+score=yes
+
+[VARIABLES]
+ignored-argument-names=_.* # arguments starting with _ can be intentionally ignored

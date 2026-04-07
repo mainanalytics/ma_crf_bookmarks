@@ -1,0 +1,16 @@
+userInterface:
+  min_height: 800
+  min_width: 1100
+  hide_terminal: True
+  dev_mode: True
+
+userSetting:
+  folder: "test"
+
+logging:
+  active: True
+  level: "INFO"
+  folder: "log"
+
+default:
+  default_parameter: 666

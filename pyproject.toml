@@ -1,0 +1,52 @@
+[project]
+name = "ma_pytemp"
+version = "0.1.0"
+description = "Demo Template for poetry python projects"
+authors = [
+    {name = "Michel Lutz", email = "michel.lutz@mainanalytics.de"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<=3.14.3"
+
+# main dependencies
+dependencies = [
+    "pyside6 (>=6.11.0,<7.0.0)",
+    "pydantic (>=2.12.5,<3.0.0)"
+]
+
+# add dependencies ony for special purpose
+[dependency-groups]
+dev = [
+    "pyinstaller (>=6.16.0,<7.0.0)",
+    "pylint (>=3.3.8,<4.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "ipykernel (>=6.30.1,<7.5.5)",
+    "jupyter (>=1.1.1,<2.0.0)",
+    "ruff (>=0.14.9,<0.15.8)",
+    "pillow (>=12.2.0,<13.0.0)",
+    "pytest-html (>=4.2.0,<5.0.0)"
+]
+test = [
+    "pytest"
+]
+
+[tool.poetry]
+packages = [{include = "ma_pytemp", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# include the current directory in your pythonpath for pytest
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+# configure ruff
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+lint.select = ["E", "F", "W", "I", "B", "UP"]
+
+# possibility to ignore tests
+# lint.ignore = ["E402"]  

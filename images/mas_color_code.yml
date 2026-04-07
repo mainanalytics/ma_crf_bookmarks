@@ -1,0 +1,27 @@
+# RGB and CMYK are taken from offical source:
+# HEX values are derived
+
+light_blue:
+	RGB: [106, 169, 221]
+	CMYK: [60,22,0,0]
+	HEX: #66C7FF
+	
+dark_blue: 
+	RGB: [0, 70, 135]
+	CMYK: [100,65,0,25]
+	HEX: #0043BF
+	
+dark_grey:
+	RGB: [100, 99, 99]
+	CMYK: [0,0,0,75]
+	HEX: #404040
+
+light_grey:
+	RGB: [227, 227, 227]
+	CMYK: [0,0,0,15]
+	HEX: #D9D9D9
+	
+red:
+	RGB: [227, 134, 135]
+	CMYK: [8,58,38,0]
+	HEX: #E38687
