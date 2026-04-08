@@ -15,7 +15,7 @@ class MainLogic:
         return "Finished"
 
     def toc_to_bookmark_dict(self, toc_input: list) -> dict:
-        #level_1 = [(i, b) for (i, b) in enumerate(toc_input) if b[0] == 1]
+        # level_1 = [(i, b) for (i, b) in enumerate(toc_input) if b[0] == 1]
 
         form_start_numbers = [b[2] for b in toc_input]
 
@@ -143,7 +143,7 @@ class MainLogic:
 
         # create new bookmarks
         new_toc_by_form = self.create_bookmarks_form(sds, input_bookmarks_dict, visit_labels)
-        new_toc_by_visit = self.create_bookmarks_form(sds, input_bookmarks_dict, visit_labels)
+        new_toc_by_visit = self.create_bookmarks_visit(sds, input_bookmarks_dict, visit_labels)
         new_toc = new_toc_by_form + new_toc_by_visit
 
         # write new toc to file
