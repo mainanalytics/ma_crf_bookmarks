@@ -9,8 +9,8 @@ userSetting:
 
 logging:
   active: True
-  level: "INFO"
-  folder: "log"
+  level: INFO
+  folder: log
 
-default:
-  default_parameter: 666
+bookmark:
+  default_dir: C:/Users/mlutz/Documents/projects

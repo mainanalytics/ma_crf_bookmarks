@@ -6,7 +6,6 @@ from PySide6.QtGui import QCloseEvent, QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QVBoxLayout, QWidget
 
 from ma_crf_bookmarks.app.base_app import MainApp
-from ma_crf_bookmarks.gui.body_widget import BodyWidget
 from ma_crf_bookmarks.gui.default_elements.default_style_values import (
     DefaultColors,
     DefaultFont,
@@ -50,9 +49,9 @@ class MainWindow(QMainWindow):
         self.main_widget, self.main_layout = self.create_main_widget()
 
         self.header_widget = HeaderWidget(self)
-        self.body_widget = BodyWidget(self)
+        # self.body_widget = BodyWidget(self)
         self.main_layout.addWidget(self.header_widget, alignment=Qt.AlignTop)
-        self.main_layout.addWidget(self.body_widget, alignment=Qt.AlignTop)
+        # self.main_layout.addWidget(self.body_widget, alignment=Qt.AlignTop)
 
         self.main_app = MainApp(self, self.config, self.user, self.logger, self.root_dir)
         self.main_layout.addWidget(self.main_app.app_window, alignment=Qt.AlignTop)
@@ -165,7 +164,7 @@ class Main:
 
         config, path = load_config(path="config/template-config.yml")
         if config.logging.active:
-            self.logger, self.log_path = create_log(config)
+            self.logger, self.log_path = create_log(config, name="bookmark_logger")
             self.logger.info("SYS  | Used config file: %s.", path)
         else:
             self.logger = None

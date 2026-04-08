@@ -1,28 +1,24 @@
 import os
+import traceback
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
-    QFileDialog,
-    QGroupBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QStackedLayout,
     QStyle,
     QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
+from ma_crf_bookmarks.app.gui.output_file_widget import OutputFileWidget
+from ma_crf_bookmarks.app.gui.select_file_widget import SelectFileWidget
 from ma_crf_bookmarks.gui.default_elements.default_style_values import (
     DefaultBorder,
     DefaultColors,
 )
 from ma_crf_bookmarks.gui.msg_box import DefaultMsgBox
-from ma_crf_bookmarks.logic.demo_logic import MainLogic
+from ma_crf_bookmarks.logic.bookmark_logic import MainLogic
 
 if TYPE_CHECKING:
     from ma_crf_bookmarks.app.base_app import BaseApp
@@ -47,164 +43,147 @@ class MainAppWindow(QWidget):
         self.logger = base_app.logger
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
+        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setSpacing(15)
 
-        icon_size = QSize(35, 35)
-        btn_heigth = 60
-        btn_width = 60
-        label_width = 150
+        icon_size = QSize(50, 50)
+        btn_heigth = 85
+        btn_width = 85
+        label_width = 90
+        default_dir = os.path.normpath(self.config.bookmark.default_dir)
 
-        # dir part
-        dir_box = QGroupBox()
-        dir_layout = QVBoxLayout(dir_box)
-        layout.addWidget(dir_box)
+        self.sds_path: str = None
+        self.crf_path: str = None
+        self.output_path: str = None
 
-        dir_box_label = QLabel("Select Demo Folder")
-        dir_box_label.setObjectName("box_label")
-        dir_layout.addWidget(dir_box_label)
-
-        analysis_dir = QLabel("Demo Directory")
-        analysis_dir.setFixedWidth(label_width)
-        self.demo_dir_input_box = QLineEdit()
-        self.demo_dir_input_box.setPlaceholderText("...")
-        self.demo_dir_input_box.setReadOnly(True)
-        self.demo_dir_input_box.setStyleSheet(
-            "QLineEdit[readOnly='true'] { background-color: #E0E0E0; }"
+        # select part
+        self.select_crf_widget = SelectFileWidget(
+            parent_widget=self,
+            group_txt="CRF",
+            label_txt="select CRF:",
+            placeholder_txt="...",
+            object_name="select_CRF",
+            default_dir=default_dir,
+            file_format="pdf",
+            label_width=label_width,
+            btn_heigth=btn_heigth,
+            btn_width=btn_width,
+            icon_size=icon_size,
         )
+        layout.addWidget(self.select_crf_widget)
 
-        # analyis dir button
-        btn_browse = QPushButton()
-        btn_browse.setObjectName("btn_browse")
-        btn_browse.setFixedHeight(btn_heigth)
-        btn_browse.setFixedWidth(btn_width)
-        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_DirIcon)
-        btn_browse.setIcon(icon)
-        btn_browse.setIconSize(icon_size)
-        btn_browse.clicked.connect(self.btn_browse_clicked)
+        self.select_sds_widget = SelectFileWidget(
+            parent_widget=self,
+            group_txt="Study Definition Spec (SDS)",
+            label_txt="select SDS",
+            placeholder_txt="...",
+            object_name="select_SDS",
+            default_dir=default_dir,
+            file_format="xlsx",
+            label_width=label_width,
+            btn_heigth=btn_heigth,
+            btn_width=btn_width,
+            icon_size=icon_size,
+        )
+        layout.addWidget(self.select_sds_widget)
 
-        directory_layout = QHBoxLayout()
-        directory_layout.addWidget(analysis_dir)
-        directory_layout.addWidget(self.demo_dir_input_box)
-        directory_layout.addWidget(btn_browse)
-        dir_layout.addLayout(directory_layout)
-        dir_layout.addStretch(1)
+        self.select_output_widget = OutputFileWidget(
+            parent_widget=self,
+            group_txt="Output CRF",
+            label_txt="output",
+            placeholder_txt="...",
+            object_name="select_output",
+            default_dir=default_dir,
+            label_width=label_width,
+            btn_heigth=btn_heigth,
+            btn_width=btn_width,
+            icon_size=icon_size,
+        )
+        layout.addWidget(self.select_output_widget)
 
-        # logic part
-        logic_box = QGroupBox()
-        logic_layout = QVBoxLayout(logic_box)
-        layout.addWidget(logic_box)
-        # logic_layout.addStretch(1)
+        # Create aCRF btn
+        self.start_btn = QToolButton()
+        self.start_btn.setObjectName("start_btn")
+        font = QFont("Calibri", 20)
+        font.setBold(True)
+        font.setPointSize(18)
+        self.start_btn.setFont(font)
 
-        logic_box_label = QLabel("Computation heavy logic")
-        logic_box_label.setObjectName("box_label")
-        logic_layout.addWidget(logic_box_label)
+        self.start_btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.start_btn.setFixedHeight(btn_heigth + 40)
+        self.start_btn.setFixedWidth(btn_width + 40)
+        self.start_btn.setIconSize(QSize(70, 70))
+        self.start_btn.setText("Create\nBookmarks")
+        logic_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_MediaPlay)
+        self.start_btn.setIcon(logic_icon)
+        self.start_btn.clicked.connect(self.btn_start_clicked)
+        self.start_btn.setEnabled(False)
 
-        self.result_label = QLabel("Prime factors:")
-        self.result_label.setFixedWidth(label_width)
-        self.demo_logic_input_box = QLineEdit()
-        self.demo_logic_input_box.setPlaceholderText("input")
-
-        # logic button
-        self.btn_stack = QStackedLayout()
-        self.btn_container = QWidget()
-        self.btn_container.setLayout(self.btn_stack)
-
-        self.btn_start_logic = QToolButton()
-        self.btn_start_logic.setObjectName("btn_logic")
-        font = QFont()
-        font.setPointSize(12)
-        self.btn_start_logic.setFont(font)
-
-        self.btn_start_logic.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.btn_start_logic.setFixedHeight(btn_heigth)
-        self.btn_start_logic.setFixedWidth(btn_width)
-        self.btn_start_logic.setIconSize(icon_size)
-        self.btn_start_logic.setText("Start")
-        logic_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
-        self.btn_start_logic.setIcon(logic_icon)
-        self.btn_start_logic.clicked.connect(self.btn_start_clicked)
-
-        # abort button
-        self.btn_abort_logic = QToolButton()
-        self.btn_abort_logic.setObjectName("btn_logic")
-        font = QFont()
-        font.setPointSize(12)
-        self.btn_abort_logic.setFont(font)
-
-        self.btn_abort_logic.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.btn_abort_logic.setFixedHeight(btn_heigth)
-        self.btn_abort_logic.setFixedWidth(btn_width)
-        self.btn_abort_logic.setIconSize(icon_size)
-        self.btn_abort_logic.setText("Abort")
-        abort_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_BrowserStop)
-        self.btn_abort_logic.setIcon(abort_icon)
-        self.btn_abort_logic.clicked.connect(self.base_app.abort_thread)
-
-        self.btn_stack.setCurrentIndex(0)
-        self.btn_stack.addWidget(self.btn_start_logic)
-        self.btn_stack.addWidget(self.btn_abort_logic)
-
-        # add al logic widgets
-        logic_level2_layout = QHBoxLayout()
-        logic_level2_layout.addWidget(self.result_label)
-        logic_level2_layout.addWidget(self.demo_logic_input_box)
-        logic_level2_layout.addWidget(self.btn_container, alignment=Qt.AlignRight)
-
-        logic_layout.addLayout(logic_level2_layout)
-        logic_layout.addStretch(1)
+        # set spacing between button and select
+        layout.setSpacing(30)
+        layout.addWidget(self.start_btn, alignment=Qt.AlignCenter)
 
         self.set_style()
 
-    def btn_browse_clicked(self):
-        folder = QFileDialog.getExistingDirectory(parent=self, caption="Select Demo Folder")
-
-        folder = os.path.normpath(folder)
-        self.demo_dir_input_box.setText(folder)
-
     def btn_start_clicked(self):
-        try:
-            input_value = int(self.demo_logic_input_box.text())
-        except Exception as _:
+        self.start_btn.setEnabled(False)
+
+        if not self.select_output_widget.valid_output():
             msg_box: DefaultMsgBox = DefaultMsgBox(
                 parent_window=self,
-                title="Input Missing",
-                msg="Please provide numeric input",
+                title="Invalid Outputfile",
+                msg="Please enter valid output file",
                 btn_type="ok",
             )
             msg_box.exec()
             return
 
-        self.btn_stack.setCurrentIndex(1)
-
+        self.output_path = os.path.normpath(self.select_output_widget.text_box.text())
         if self.logger:
-            self.logger.info("SYS  | Start logic, with input %s.", str(input_value))
+            self.logger.info("SYS  | Input CRF:\t\t %s", self.crf_path)
+            self.logger.info("SYS  | Input SDS:\t\t %s", self.sds_path)
+            self.logger.info("SYS  | Output CRF:\t %s", self.output_path)
+            self.logger.info("SYS  | Start creating bookmarks")
 
         logic = MainLogic()
 
         self.base_app.main_window.status_bar_handler.start_spinner(
-            txt="Logic running", freq=300, timeout=None, spinner_symbols=["⟳", "⟲"]
+            txt="Creating bookmarks", freq=300, timeout=None, spinner_symbols=["⟳", "⟲"]
         )
 
-        # run logic
-        self.base_app.run_thread(
-            func=lambda: logic.start_logic(input_value=input_value),
-            on_return=self.on_finished,
-        )
+        try:
+            self.base_app.run_thread(
+                func=lambda: logic.start_logic(
+                    crf_path=self.crf_path, sds_path=self.sds_path, output_path=self.output_path
+                ),
+                on_return=self.on_finished,
+            )
+        except Exception as e:
+            msg_box: DefaultMsgBox = DefaultMsgBox(
+                parent_window=self,
+                title="Error",
+                msg=str(e),
+                btn_type="ok",
+            )
+            msg_box.exec()
+            self.logger(traceback.print_exc())
 
     def on_finished(self, result):
-        self.btn_stack.setCurrentIndex(0)
-
+        _ = result
         if self.logger:
-            self.logger.info("SYS  | Finished logic. Result: %s.", result)
+            self.logger.info("SYS  | Created bookmarks.")
 
-        self.demo_logic_input_box.setText(f"{result}")
         self.base_app.main_window.status_bar_handler.end_spinner()
-        self.base_app.main_window.status_bar_handler.update_status_bar("Logic finished", 5000)
+        self.base_app.main_window.status_bar_handler.update_status_bar("Bookmarks finished", 5000)
+
         msg_box_ok: DefaultMsgBox = DefaultMsgBox(
-            parent_window=self, title="Logic", msg="Computation finished.", btn_type="ok"
+            parent_window=self,
+            title="Finished",
+            msg=f"CRF created:\n{self.output_path}",
+            btn_type="ok",
         )
         msg_box_ok.exec()
+        self.start_btn.setEnabled(True)
 
     def set_style(self):
         self.setStyleSheet(f""" QLabel{{
@@ -226,24 +205,11 @@ class MainAppWindow(QWidget):
                                 border: none;
                             }}
                             QToolButton{{
-                                background-color: {DefaultColors.light_grey.value};
+                                background-color: {DefaultColors.background.value};
                                 border: none;
                                 border-radius: {DefaultBorder.radius.value}px;
-                                font-weight: normal;
-                                font-style: normal;
                             }}
                             QToolButton:hover{{
-                                background-color: {DefaultColors.dark_blue.value};
-                            }}
-                            QPushButton#btn_browse{{
-                                background-color: {DefaultColors.light_grey.value};
-                                border: none;
-                                border-radius: {DefaultBorder.radius.value}px;
-                                font-size: 15px;
-                                font-weight: normal;
-                                font-style: normal;
-                            }}
-                            QPushButton#btn_browse:hover{{
                                 background-color: {DefaultColors.dark_blue.value};
                             }}
                             """)

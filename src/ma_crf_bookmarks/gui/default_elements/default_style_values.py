@@ -21,3 +21,4 @@ class DefaultColors(Enum):
     red: str = "#E38687"
     pure_white: str = "#FFFFFF"
     pure_black: str = "#000000"
+    background: str = "#F3F3F3"

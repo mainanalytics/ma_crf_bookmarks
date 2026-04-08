@@ -24,15 +24,15 @@ class UserSetting(BaseModel):
     folder: Optional[str] = Field(default=None, description="Path to user folder")
 
 
-class DefaultConfig(BaseModel):
-    default_parameter: int = Field(default=800, ge=600, description="Change this to required field")
+class BookMarkSetting(BaseModel):
+    default_dir: str = Field(default=".", description="Default dir to search for aCRF")
 
 
 class ConfigModel(BaseModel):
     userInterface: UIConfig = Field(default=UIConfig())
     userSetting: UserSetting = Field(default=UserSetting())
     logging: LoggerConfig = Field(default=LoggerConfig())
-    default: DefaultConfig = Field(default=DefaultConfig())
+    bookmark: BookMarkSetting = Field(default=BookMarkSetting())
 
 
 def load_config(path: str = "template-config.yml") -> tuple[ConfigModel, str]:
